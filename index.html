@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EOSC-ES · Estado del Nodo</title>
+<meta name="description" content="Estado de desarrollo del Nodo español de la EOSC Federation / Development status of the Spanish Node of the EOSC Federation">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M13 7a9 9 0 1 0 0 18' fill='none' stroke='%23ff5b7f' stroke-width='4' stroke-linecap='round'/%3E%3Cpath d='M19 25a9 9 0 1 0 0-18' fill='none' stroke='%23008691' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preload" href="assets/fonts/roboto-latin-300-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/quicksand-latin-300-normal.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* EOSC Association Corporate Design Manual v.1 (2022-09):
+   headlines Quicksand Light · body and sub-headlines Roboto Light, line height ~150 %
+   Lively Green #008691 + White (primary) · Mild Pink #ff5b7f (signal) · Light Grey #e4e4e3 · Warm Black #040204
+   body text on light backgrounds #646363 */
+@font-face{font-family:"Quicksand";font-weight:300;font-style:normal;font-display:swap;src:url(assets/fonts/quicksand-latin-300-normal.woff2) format("woff2")}
+@font-face{font-family:"Quicksand";font-weight:400;font-style:normal;font-display:swap;src:url(assets/fonts/quicksand-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Quicksand";font-weight:600;font-style:normal;font-display:swap;src:url(assets/fonts/quicksand-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:"Roboto";font-weight:300;font-style:normal;font-display:swap;src:url(assets/fonts/roboto-latin-300-normal.woff2) format("woff2")}
+@font-face{font-family:"Roboto";font-weight:400;font-style:normal;font-display:swap;src:url(assets/fonts/roboto-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Roboto";font-weight:500;font-style:normal;font-display:swap;src:url(assets/fonts/roboto-latin-500-normal.woff2) format("woff2")}
+:root{
+  --green:#008691; --pink:#ff5b7f; --grey:#e4e4e3; --black:#040204;
+  --bg:#ffffff; --surface:#ffffff; --surface-2:#f4f4f3; --band:#e4e4e3;
+  --text:#646363; --strong:#040204; --muted:#7a7979; --line:#e4e4e3;
+  --accent:#008691; --accent-ink:#006b74; --accent-soft:#e0f1f2; --signal:#d9365c; --signal-soft:#ffe5eb;
+  --done:#006b74; --done-bg:#d8eef0; --progress:#040204; --progress-bg:#e4e4e3;
+  --review:#8a5a00; --review-bg:#f7ecd5; --planned:#646363; --planned-bg:#f4f4f3;
+  --pending:#c2254b; --pending-bg:#ffe5eb;
+  --hero-ink:#ffffff; --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0d0c0e; --surface:#161517; --surface-2:#1d1c1f; --band:#1d1c1f;
+    --text:#c9c8c8; --strong:#ffffff; --muted:#9a9999; --line:#2c2b2e;
+    --accent:#3fb8c2; --accent-ink:#5cc7d0; --accent-soft:#0f2e31; --signal:#ff7a97; --signal-soft:#3a1720;
+    --done:#5cc7d0; --done-bg:#0f2e31; --progress:#ffffff; --progress-bg:#2c2b2e;
+    --review:#e7b95a; --review-bg:#352912; --planned:#b3b2b2; --planned-bg:#232225;
+    --pending:#ff8aa3; --pending-bg:#3a1720;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0d0c0e; --surface:#161517; --surface-2:#1d1c1f; --band:#1d1c1f;
+  --text:#c9c8c8; --strong:#ffffff; --muted:#9a9999; --line:#2c2b2e;
+  --accent:#3fb8c2; --accent-ink:#5cc7d0; --accent-soft:#0f2e31; --signal:#ff7a97; --signal-soft:#3a1720;
+  --done:#5cc7d0; --done-bg:#0f2e31; --progress:#ffffff; --progress-bg:#2c2b2e;
+  --review:#e7b95a; --review-bg:#352912; --planned:#b3b2b2; --planned-bg:#232225;
+  --pending:#ff8aa3; --pending-bg:#3a1720;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:56px}
+body{margin:0;background:var(--bg);color:var(--text);font:300 16px/1.5 "Roboto",system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+b,strong{font-weight:500;color:var(--strong)}
+h1,h2,h3,h4{font-family:"Quicksand","Roboto",system-ui,sans-serif;font-weight:300;color:var(--strong);letter-spacing:.005em}
+a{color:var(--accent-ink)}
+.wrap{max-width:1140px;margin:0 auto;padding:0 16px}
+/* header */
+header.top{background:#fff;border-bottom:1px solid var(--grey)}
+.top .wrap{display:flex;align-items:center;gap:16px;padding-top:12px;padding-bottom:12px;flex-wrap:wrap}
+.logo{height:84px;width:auto;display:block}
+.brandtxt{flex:1;min-width:200px;color:#646363;font-size:14px;border-left:1px solid var(--grey);padding-left:16px}
+.brandtxt b{display:block;font-family:"Quicksand",sans-serif;font-weight:400;font-size:20px;color:#040204}
+.seg{display:inline-flex;border:1px solid var(--green);border-radius:999px;overflow:hidden}
+.seg button{background:transparent;border:0;color:var(--green);padding:6px 14px;font:400 13px "Roboto",sans-serif;cursor:pointer;letter-spacing:.04em}
+.seg button[aria-pressed="true"]{background:var(--green);color:#fff}
+nav.toc{background:var(--green);position:sticky;top:0;z-index:5}
+nav.toc .wrap{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+nav.toc a{color:#fff;text-decoration:none;font-size:13.5px;font-weight:400;padding:12px 12px;white-space:nowrap;border-bottom:3px solid transparent;opacity:.88}
+nav.toc a:hover{opacity:1;border-bottom-color:var(--pink)}
+/* hero */
+.hero{background:var(--green);color:var(--hero-ink);position:relative;overflow:hidden}
+.hero .wrap{padding-top:34px;padding-bottom:38px;position:relative;z-index:1}
+.hero h1{color:#fff;font-size:36px;line-height:1.2;margin:0 0 10px;max-width:760px}
+.hero p{margin:0;max-width:720px;font-size:16.5px;color:#e8f5f6}
+.hero .updated{display:inline-block;margin-top:16px;font-size:13px;color:#fff;border:1px solid rgba(255,255,255,.55);border-radius:999px;padding:3px 12px;font-weight:400}
+.hero svg.ring{position:absolute;right:-60px;top:-40px;width:340px;height:340px;opacity:.16;z-index:0}
+section{padding:34px 0}
+section.band{background:var(--band)}
+section h2{font-size:28px;margin:0 0 4px}
+section .lead{margin:0 0 20px;max-width:800px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+section.band .card{border-color:transparent}
+/* stepper */
+.steps{display:grid;grid-template-columns:repeat(5,1fr);padding:22px 14px}
+.step{position:relative;padding:0 8px;text-align:center}
+.step:before{content:"";position:absolute;top:15px;left:-50%;width:100%;height:2px;background:var(--grey);z-index:0}
+.step:first-child:before{display:none}
+.step.done:before,.step.current:before{background:var(--accent)}
+.dot{position:relative;z-index:1;width:32px;height:32px;border-radius:50%;margin:0 auto 10px;display:grid;place-items:center;font:600 14px "Quicksand",sans-serif;background:var(--surface);border:2px solid var(--grey);color:var(--muted)}
+.step.done .dot{background:var(--accent);border-color:var(--accent);color:#fff}
+.step.current .dot{border-color:var(--pink);color:var(--signal);box-shadow:0 0 0 5px var(--signal-soft)}
+.step .t{font-size:14px;font-weight:400;color:var(--strong);line-height:1.35}
+.step .w{font-size:12.5px;color:var(--muted)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:14px}
+.kpi{padding:16px 18px}
+.kpi .n{font:300 34px/1.1 "Quicksand",sans-serif;color:var(--accent-ink);font-variant-numeric:tabular-nums}
+.kpi .l{font-size:13.5px}
+/* badges */
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;padding:3px 10px;border-radius:999px;white-space:nowrap;letter-spacing:.01em}
+.badge:before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.s-done{color:var(--done);background:var(--done-bg)}
+.s-progress{color:var(--progress);background:var(--progress-bg)}
+.s-review{color:var(--review);background:var(--review-bg)}
+.s-planned{color:var(--planned);background:var(--planned-bg)}
+.s-pending{color:var(--pending);background:var(--pending-bg)}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+/* lists */
+.grid2{display:grid;grid-template-columns:1.25fr 1fr;gap:16px}
+.list{list-style:none;margin:0;padding:0}
+.list li{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:start;padding:14px 18px;border-top:1px solid var(--line)}
+.list li:first-child{border-top:0}
+.list .id{font:600 15px "Quicksand",sans-serif;color:var(--accent-ink);min-width:36px}
+.list .ti{font-weight:400;color:var(--strong)}
+.list .no{font-size:14px}
+.card h3{font-size:18px;margin:0;padding:14px 18px;border-bottom:1px solid var(--line)}
+.tl{list-style:none;margin:0;padding:16px 18px}
+.tl li{position:relative;padding:0 0 16px 24px}
+.tl li:last-child{padding-bottom:0}
+.tl li:before{content:"";position:absolute;left:5px;top:8px;bottom:-8px;width:2px;background:var(--line)}
+.tl li:last-child:before{display:none}
+.tl li i{position:absolute;left:0;top:5px;width:12px;height:12px;border-radius:50%;border:2px solid var(--muted);background:var(--surface)}
+.tl li.done i{background:var(--accent);border-color:var(--accent)}
+.tl li.nextup i{border-color:var(--pink);background:var(--pink)}
+.tl .d{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tl .next{font-size:11px;font-weight:500;color:var(--signal);margin-left:8px;text-transform:uppercase;letter-spacing:.06em}
+.tl .ev{color:var(--strong);font-weight:300}
+/* roles */
+.roles{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:14px}
+.role{padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+.role .rn{font:400 17px/1.3 "Quicksand",sans-serif;color:var(--strong)}
+.role .who{font-size:14px;color:var(--pending);font-weight:400}
+.note{border-left:4px solid var(--pink);padding:12px 16px;background:var(--surface);border-radius:0 var(--radius) var(--radius) 0;font-size:15px;max-width:900px}
+/* FCs */
+.fcgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.fc{padding:16px 18px;display:flex;flex-direction:column;gap:6px}
+.fc .hd{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.code{font:600 14px "Quicksand",sans-serif;color:var(--accent-ink);letter-spacing:.02em}
+.fc .nm{font:400 17px/1.3 "Quicksand",sans-serif;color:var(--strong)}
+.fc .lv{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:400}
+.fc .bs{font-size:14px}
+.fc .ft{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:13px;border-top:1px solid var(--line);padding-top:8px;margin-top:auto}
+.fc .ft dt{color:var(--muted)}
+.fc .ft dd{margin:0;color:var(--strong)}
+.tbd{color:var(--pending)!important;font-weight:400}
+/* use cases */
+.ucgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.uc{padding:18px;display:flex;flex-direction:column;gap:8px}
+.uc h4{margin:0;font-size:19px;line-height:1.3}
+.uc dl{margin:0;font-size:14px}
+.uc dt{color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;margin-top:8px;font-weight:400}
+.uc dd{margin:0;color:var(--strong)}
+.uc .res{display:flex;flex-wrap:wrap;gap:4px;margin-top:auto;padding-top:8px}
+.chip{font-size:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:1px 8px;white-space:nowrap;font-weight:400}
+/* table */
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:11px 14px;border-top:1px solid var(--line);vertical-align:top}
+thead th{border-top:0;font-size:12px;font-weight:500;color:var(--strong);text-transform:uppercase;letter-spacing:.06em;background:var(--surface-2)}
+td{color:var(--strong)}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+td .chip{margin:0 3px 3px 0;display:inline-block;color:var(--text)}
+.filters{display:flex;flex-wrap:wrap;gap:6px;padding:14px 14px 10px}
+.filters button{font:400 13px "Roboto",sans-serif;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:999px;padding:4px 12px;cursor:pointer}
+.filters button[aria-pressed="true"]{border-color:var(--accent);color:#fff;background:var(--accent)}
+/* milestones */
+.track{padding:18px}
+.msgrid{grid-template-columns:1.35fr 1fr;align-items:start}
+.mi .dl{display:inline-flex;gap:4px}
+.list .resp{font-size:13px;margin-top:4px;color:var(--muted)}
+.list .mm{font:300 20px/1.1 "Quicksand",sans-serif;color:var(--accent-ink);white-space:nowrap}
+.mrow{display:grid;grid-template-columns:70px 1fr;gap:14px;padding:12px 0;border-top:1px solid var(--line)}
+.mrow:first-child{border-top:0;padding-top:0}
+.mrow .m{font:300 24px/1.1 "Quicksand",sans-serif;color:var(--accent-ink);font-variant-numeric:tabular-nums}
+.mrow .items{display:flex;flex-direction:column;gap:8px}
+.mi{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.mi .mid{font:600 12.5px "Quicksand",sans-serif;color:var(--muted);min-width:70px}
+.mi .mt{flex:1;min-width:200px;color:var(--strong)}
+/* footer */
+footer{background:#040204;color:#c9c8c8;font-size:13.5px}
+footer .wrap{padding-top:26px;padding-bottom:30px;display:grid;gap:12px}
+footer a{color:#7fd3da}
+.eu{display:flex;gap:14px;align-items:flex-start}
+.flag{flex:none;width:48px;height:32px;background:#003399;display:grid;place-items:center}
+.flag svg{width:28px;height:28px}
+@media (max-width:860px){
+  .grid2,.msgrid{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr;gap:12px}
+  .step{display:grid;grid-template-columns:32px 1fr;gap:12px;text-align:left;padding:0}
+  .step:before{display:none}
+  .dot{margin:0}
+  .hero h1{font-size:28px}
+  section h2{font-size:24px}
+  .logo{height:64px}
+  .brandtxt{border-left:0;padding-left:0;min-width:0;flex-basis:100%;order:3}
+  .controls{margin-left:auto}
+  .list li{grid-template-columns:auto 1fr}
+  .list li .badge{grid-column:2;justify-self:start}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <img class="logo" src="assets/eosc-es-prep-logo.png" alt="EOSC-ES-Prep · EOSC Gravity · Funded by the European Union" width="505" height="200">
+    <div class="brandtxt"><b>EOSC-ES</b><span data-i18n="brandSub"></span></div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Idioma / Language">
+        <button type="button" data-lang="es">ES</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+    </div>
+  </div>
+</header>
+<nav class="toc" aria-label="Secciones"><div class="wrap" id="toc"></div></nav>
+
+<div class="hero">
+  <svg class="ring" viewBox="0 0 100 100" aria-hidden="true"><path d="M42 12a38 38 0 1 0 0 76" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round"/><path d="M58 88a38 38 0 1 0 0-76" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round"/></svg>
+  <div class="wrap">
+    <h1 data-i18n="heroTitle"></h1>
+    <p data-i18n="heroText"></p>
+    <span class="updated" id="updated"></span>
+  </div>
+</div>
+
+<main>
+  <section id="overview"><div class="wrap">
+    <div class="card"><div class="steps" id="steps"></div></div>
+    <div class="kpis" id="kpis"></div>
+  </div></section>
+
+  <section id="prep" class="band"><div class="wrap">
+    <h2 data-i18n="prepTitle"></h2>
+    <p class="lead" data-i18n="prepLead"></p>
+    <div class="grid2">
+      <div class="card"><h3 data-i18n="deliverables"></h3><ul class="list" id="deliverables"></ul></div>
+      <div class="card"><h3 data-i18n="timeline"></h3><ul class="tl" id="events"></ul></div>
+    </div>
+  </div></section>
+
+  <section id="enrolment"><div class="wrap">
+    <h2 data-i18n="enrolTitle"></h2>
+    <p class="lead" data-i18n="enrolLead"></p>
+    <div class="card"><ul class="list" id="criteria"></ul></div>
+  </div></section>
+
+  <section id="roles" class="band"><div class="wrap">
+    <h2 data-i18n="rolesTitle"></h2>
+    <p class="lead" data-i18n="rolesLead"></p>
+    <div class="roles" id="rolegrid"></div>
+    <div class="note" id="rolesnote"></div>
+  </div></section>
+
+  <section id="fcs"><div class="wrap">
+    <h2 data-i18n="fcTitle"></h2>
+    <p class="lead" data-i18n="fcLead"></p>
+    <div class="fcgrid" id="fcgrid"></div>
+  </div></section>
+
+  <section id="usecases" class="band"><div class="wrap">
+    <h2 data-i18n="ucTitle"></h2>
+    <p class="lead" data-i18n="ucLead"></p>
+    <div class="ucgrid" id="ucgrid"></div>
+  </div></section>
+
+  <section id="resources"><div class="wrap">
+    <h2 data-i18n="resTitle"></h2>
+    <p class="lead" data-i18n="resLead"></p>
+    <div class="card">
+      <div class="filters" id="resfilters"></div>
+      <div class="tablewrap"><table>
+        <thead><tr><th>ID</th><th data-i18n="thRes"></th><th data-i18n="thProv"></th><th>TRL</th><th data-i18n="thUC"></th><th>FC</th><th data-i18n="thStatus"></th></tr></thead>
+        <tbody id="restable"></tbody>
+      </table></div>
+    </div>
+  </div></section>
+
+  <section id="milestones" class="band"><div class="wrap">
+    <h2 data-i18n="msTitle"></h2>
+    <p class="lead" data-i18n="msLead"></p>
+    <div class="legend" id="legend"></div>
+    <div class="grid2 msgrid">
+      <div class="card"><h3 data-i18n="msHead"></h3><div class="track" id="mstrack"></div></div>
+      <div class="card"><h3 data-i18n="ndHead"></h3><ul class="list" id="nodedel"></ul></div>
+    </div>
+  </div></section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="eu">
+      <div class="flag" aria-hidden="true"><svg viewBox="0 0 26 26"><g fill="#FFCC00" id="stars"></g></svg></div>
+      <div data-i18n="funding"></div>
+    </div>
+    <div id="footmeta"></div>
+  </div>
+</footer>
+
+<script src="data.js"></script>
+<script>
+(function(){
+  "use strict";
+  var D = window.EOSC_ES_STATUS;
+  var I18N = {
+    es:{brandSub:"Nodo español de la EOSC Federation",heroTitle:"Estado de desarrollo del Nodo EOSC español",
+      heroText:"Seguimiento público del camino de EOSC-ES hacia su incorporación como Nodo de la EOSC Federation: proyecto preparatorio, criterios de enrolment, roles, Federating Capabilities, casos de uso, recursos y calendario del build-up.",
+      updated:"Actualizado el ",overview:"Resumen",prepTitle:"Proyecto preparatorio EOSC-ES-Prep",
+      prepLead:"Subvención preparatoria de EOSC Gravity para elaborar el Project Charter del Nodo y preparar la solicitud de enrolment.",
+      deliverables:"Entregables",timeline:"Reuniones y eventos",next:"próximo",
+      enrolTitle:"Preparación para el enrolment",enrolLead:"Criterios formales exigidos a un Nodo candidato y su estado actual.",
+      rolesTitle:"Roles del Nodo",rolesLead:"Los cinco roles que la EOSC Federation exige a cada Nodo.",tbd:"Por designar",
+      fcTitle:"Federating Capabilities",fcLead:"Capacidades que el Nodo implementa para integrarse en la Federación. Plazos en meses desde el inicio del build-up (M1).",
+      mandatory:"Obligatoria",mandatory2026:"Obligatoria desde 2026",recommended:"Recomendada",owner:"Responsable técnico",inst:"Institución",deadline:"Plazo",
+      ucTitle:"Casos de uso",ucLead:"Cuatro casos inter-Nodo comprometidos para el build-up; dos se demuestran en M12 y dos en M18.",
+      lead:"Institución líder",nodes:"Nodos contraparte",dataspace:"Espacio de datos",target:"Demostración",rehearsal:"Ensayo previo",
+      resTitle:"Recursos del Node Exchange",resLead:"Cartera inicial de repositorios y servicios, todos en operación con TRL ≥ 7. La primera oleada de onboarding está prevista en M9 (ES-MS3).",
+      thRes:"Recurso",thProv:"Proveedor",thUC:"Casos de uso",thStatus:"Onboarding",all:"Todos",
+      msTitle:"Hitos y entregables del build-up",msLead:"Calendario del Project Charter (R1): ocho hitos y cinco entregables. M1 es el inicio del build-up tras la aceptación del enrolment.",msHead:"Hitos",ndHead:"Entregables",
+      kInst:"instituciones en el consorcio",kRes:"recursos en la cartera inicial",kUC:"casos de uso inter-Nodo",kDel:"entregables preparatorios cerrados",kCrit:"criterios de enrolment cumplidos",kRoles:"roles del Nodo designados",
+      funding:"EOSC-ES-Prep se financia mediante las Cascading Grants del proyecto EOSC Gravity, que ha recibido financiación del programa Horizonte Europa de la Unión Europea en virtud del acuerdo de subvención n.º 101188045. Las opiniones expresadas son exclusivamente de sus autores.",
+      coord:"Coordinación del proyecto preparatorio",contact:"Contacto",repo:"Código fuente",license:"Contenido bajo licencia CC BY 4.0. Tipografías Quicksand (SIL OFL) y Roboto (Apache 2.0).",
+      st:{done:"Completado",progress:"En curso",review:"En revisión",planned:"Planificado",pending:"Pendiente de decisión"}},
+    en:{brandSub:"Spanish Node of the EOSC Federation",heroTitle:"Development status of the Spanish EOSC Node",
+      heroText:"Public tracker of EOSC-ES on its way to becoming a Node of the EOSC Federation: preparatory project, enrolment criteria, roles, Federating Capabilities, use cases, resources and build-up schedule.",
+      updated:"Updated ",overview:"Overview",prepTitle:"EOSC-ES-Prep preparatory project",
+      prepLead:"EOSC Gravity preparatory grant to draft the Node Project Charter and prepare the enrolment application.",
+      deliverables:"Deliverables",timeline:"Meetings and events",next:"next",
+      enrolTitle:"Enrolment readiness",enrolLead:"Formal criteria required from a candidate Node and their current status.",
+      rolesTitle:"Node roles",rolesLead:"The five roles the EOSC Federation requires from every Node.",tbd:"TBD",
+      fcTitle:"Federating Capabilities",fcLead:"Capabilities the Node implements to integrate with the Federation. Deadlines in months from the start of the build-up (M1).",
+      mandatory:"Mandatory",mandatory2026:"Mandatory from 2026",recommended:"Recommended",owner:"Technical owner",inst:"Institution",deadline:"Target",
+      ucTitle:"Use cases",ucLead:"Four inter-Node use cases committed for the build-up; two are demonstrated at M12 and two at M18.",
+      lead:"Lead institution",nodes:"Counterpart Nodes",dataspace:"Data space",target:"Demonstration",rehearsal:"Rehearsal",
+      resTitle:"Node Exchange resources",resLead:"Initial portfolio of repositories and services, all operational at TRL ≥ 7. The first onboarding wave is planned for M9 (ES-MS3).",
+      thRes:"Resource",thProv:"Provider",thUC:"Use cases",thStatus:"Onboarding",all:"All",
+      msTitle:"Build-up milestones and deliverables",msLead:"Schedule from the Project Charter (R1): eight milestones and five deliverables. M1 is the start of the build-up once enrolment is accepted.",msHead:"Milestones",ndHead:"Deliverables",
+      kInst:"institutions in the consortium",kRes:"resources in the initial portfolio",kUC:"inter-Node use cases",kDel:"preparatory deliverables closed",kCrit:"enrolment criteria met",kRoles:"Node roles designated",
+      funding:"EOSC-ES-Prep is funded within the Cascading Grants of the EOSC Gravity project, which has received funding from the European Union's Horizon Europe programme under Grant Agreement No. 101188045. Views expressed are those of the authors only.",
+      coord:"Preparatory project coordination",contact:"Contact",repo:"Source",license:"Content licensed under CC BY 4.0. Typefaces Quicksand (SIL OFL) and Roboto (Apache 2.0).",
+      st:{done:"Completed",progress:"In progress",review:"Under review",planned:"Planned",pending:"Decision pending"}}
+  };
+  var SECTIONS=[["overview","overview"],["prep","prepTitle"],["enrolment","enrolTitle"],["roles","rolesTitle"],["fcs","fcTitle"],["usecases","ucTitle"],["resources","resTitle"],["milestones","msTitle"]];
+  var lang="es", resFilter="all";
+
+  function tx(v){ if(v==null) return ""; return (typeof v==="object") ? (v[lang]||v.es||v.en||"") : String(v); }
+  function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+  function t(k){ return I18N[lang][k]; }
+  function badge(s){ return '<span class="badge s-'+esc(s)+'">'+esc(I18N[lang].st[s]||s)+'</span>'; }
+  function tbd(v){ return v ? esc(v) : '<span class="tbd">'+esc(t("tbd"))+'</span>'; }
+  function fmtDate(d){
+    var p=d.split("-"), y=+p[0], m=p[1]?+p[1]-1:null, day=p[2]?+p[2]:null;
+    if(m===null) return String(y);
+    var dt=new Date(Date.UTC(y,m,day||1));
+    var o=day?{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}:{month:"long",year:"numeric",timeZone:"UTC"};
+    return dt.toLocaleDateString(lang==="es"?"es-ES":"en-GB",o);
+  }
+  function cnt(a,s){return a.filter(function(x){return s.indexOf(x.status)>=0;}).length;}
+
+  function render(){
+    document.documentElement.lang=lang;
+    document.title = "EOSC-ES · " + (lang==="es"?"Estado del Nodo":"Node status");
+    document.querySelectorAll("[data-i18n]").forEach(function(el){ el.textContent=t(el.getAttribute("data-i18n")); });
+    document.querySelectorAll("[data-lang]").forEach(function(b){ b.setAttribute("aria-pressed", b.getAttribute("data-lang")===lang); });
+    document.getElementById("updated").textContent = t("updated")+fmtDate(D.meta.updated);
+    document.getElementById("toc").innerHTML = SECTIONS.map(function(s){return '<a href="#'+s[0]+'">'+esc(t(s[1]))+'</a>';}).join("");
+
+    var cur=D.phases.current;
+    document.getElementById("steps").innerHTML = D.phases.items.map(function(p,i){
+      var c = i<cur?"done":(i===cur?"current":"");
+      return '<div class="step '+c+'"><div class="dot">'+(i<cur?"✓":(i+1))+'</div><div><div class="t">'+esc(tx(p))+'</div><div class="w">'+esc(tx(p.when))+'</div></div></div>';
+    }).join("");
+
+    var named=(D.roles||[]).filter(function(r){return r.name;}).length;
+    var k=[
+      [D.meta.institutions,"kInst"],
+      [D.resources.length,"kRes"],
+      [D.usecases.length,"kUC"],
+      [cnt(D.deliverables,["done"])+" / "+D.deliverables.length,"kDel"],
+      [cnt(D.enrolment,["done"])+" / "+D.enrolment.length,"kCrit"],
+      [named+" / "+(D.roles||[]).length,"kRoles"]
+    ];
+    document.getElementById("kpis").innerHTML = k.map(function(x){return '<div class="card kpi"><div class="n">'+esc(x[0])+'</div><div class="l">'+esc(t(x[1]))+'</div></div>';}).join("");
+
+    document.getElementById("deliverables").innerHTML = D.deliverables.map(function(d){
+      return '<li><span class="id">'+esc(d.id)+'</span><div><div class="ti">'+esc(tx(d.title))+(d.due?' <span style="font-size:13px;color:var(--muted)">· '+esc(d.due)+'</span>':'')+'</div><div class="no">'+esc(tx(d.note))+'</div></div>'+badge(d.status)+'</li>';
+    }).join("");
+
+    var nextShown=false;
+    document.getElementById("events").innerHTML = D.events.map(function(e){
+      var isNext = !nextShown && e.status!=="done"; if(isNext) nextShown=true;
+      return '<li class="'+esc(e.status)+(isNext?' nextup':'')+'"><i></i><div class="d">'+esc(fmtDate(e.date))+(isNext?'<span class="next">'+esc(t("next"))+'</span>':'')+'</div><div class="ev">'+esc(tx(e.title))+'</div></li>';
+    }).join("");
+
+    document.getElementById("criteria").innerHTML = D.enrolment.map(function(c){
+      return '<li><span class="id">'+(c.status==="done"?"✓":"·")+'</span><div><div class="ti">'+esc(tx(c.title))+'</div><div class="no">'+esc(tx(c.note))+'</div></div>'+badge(c.status)+'</li>';
+    }).join("");
+
+    document.getElementById("rolegrid").innerHTML = (D.roles||[]).map(function(r){
+      return '<div class="card role"><div class="rn">'+esc(tx(r.role))+'</div><div class="who">'+tbd(r.name)+'</div><div>'+badge(r.status)+'</div></div>';
+    }).join("");
+    document.getElementById("rolesnote").textContent = tx(D.rolesNote);
+
+    document.getElementById("fcgrid").innerHTML = D.fcs.map(function(f){
+      return '<div class="card fc"><div class="hd"><span class="code">'+esc(f.id)+'</span>'+badge(f.status)+'</div>'+
+        '<div class="nm">'+esc(tx(f.name))+'</div><div class="lv">'+esc(t(f.level))+'</div>'+
+        '<div class="bs">'+esc(tx(f.basis))+'</div>'+
+        '<dl class="ft"><dt>'+esc(t("owner"))+'</dt><dd>'+tbd(f.owner)+'</dd>'+
+        '<dt>'+esc(t("inst"))+'</dt><dd>'+tbd(f.inst)+'</dd>'+
+        '<dt>'+esc(t("deadline"))+'</dt><dd>'+esc(tx(f.target))+'</dd></dl></div>';
+    }).join("");
+
+    document.getElementById("ucgrid").innerHTML = D.usecases.map(function(u){
+      var res = D.resources.filter(function(r){return r.uc.indexOf(u.id)>=0;}).map(function(r){return '<span class="chip" title="'+esc(tx(r.name))+'">'+esc(r.id)+'</span>';}).join("");
+      return '<div class="card uc"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span class="code">'+esc(u.id)+'</span>'+badge(u.status)+'</div>'+
+        '<h4>'+esc(tx(u.title))+'</h4><dl>'+
+        '<dt>'+esc(t("lead"))+'</dt><dd>'+esc(u.lead)+'</dd>'+
+        '<dt>'+esc(t("nodes"))+'</dt><dd>'+esc(u.nodes)+'</dd>'+
+        '<dt>'+esc(t("dataspace"))+'</dt><dd>'+esc(tx(u.dataspace))+'</dd>'+
+        (u.rehearsal?'<dt>'+esc(t("rehearsal"))+'</dt><dd>'+esc(u.rehearsal)+'</dd>':'')+
+        '<dt>'+esc(t("target"))+'</dt><dd><b>'+esc(u.target)+'</b></dd></dl>'+
+        '<div class="res">'+res+'</div></div>';
+    }).join("");
+
+    var fl=["all"].concat(D.usecases.map(function(u){return u.id;}));
+    document.getElementById("resfilters").innerHTML = fl.map(function(f){return '<button type="button" data-f="'+esc(f)+'" aria-pressed="'+(f===resFilter)+'">'+esc(f==="all"?t("all"):f)+'</button>';}).join("");
+    document.getElementById("restable").innerHTML = D.resources.filter(function(r){return resFilter==="all"||r.uc.indexOf(resFilter)>=0;}).map(function(r){
+      return '<tr><td class="num"><b>'+esc(r.id)+'</b></td><td>'+esc(tx(r.name))+'</td><td>'+esc(r.provider)+'</td><td class="num">'+esc(r.trl)+'</td><td>'+r.uc.map(function(x){return '<span class="chip">'+esc(x)+'</span>';}).join("")+'</td><td>'+r.fc.map(function(x){return '<span class="chip">'+esc(x)+'</span>';}).join("")+'</td><td>'+badge(r.status)+'</td></tr>';
+    }).join("");
+
+    document.getElementById("legend").innerHTML = ["done","progress","review","planned","pending"].map(badge).join("");
+    var groups=[], idx={};
+    D.milestones.forEach(function(m){ if(!(m.m in idx)){idx[m.m]=groups.length;groups.push({m:m.m,items:[]});} groups[idx[m.m]].items.push(m); });
+    document.getElementById("mstrack").innerHTML = groups.map(function(g){
+      return '<div class="mrow"><div class="m">'+esc(g.m)+'</div><div class="items">'+g.items.map(function(m){
+        var dl=(m.d||[]).map(function(x){return '<span class="chip">'+esc(x)+'</span>';}).join("");
+        return '<div class="mi"><span class="mid">'+esc(m.id)+'</span><span class="mt">'+esc(tx(m.title))+(dl?' <span class="dl">'+dl+'</span>':'')+'</span>'+badge(m.status)+'</div>';
+      }).join("")+'</div></div>';
+    }).join("");
+
+    document.getElementById("nodedel").innerHTML = (D.nodeDeliverables||[]).map(function(d){
+      return '<li><span class="id">'+esc(d.id)+'</span><div><div class="ti">'+esc(tx(d.title))+'</div><div class="no">'+esc(tx(d.note))+'</div><div class="resp">'+esc(tx(d.resp))+'</div><div style="margin-top:6px">'+badge(d.status)+'</div></div><span class="mm">'+esc(d.m)+'</span></li>';
+    }).join("");
+
+    var fm=[esc(t("coord"))+": "+esc(D.meta.coordinator)+" · "+esc(D.meta.project)+" ("+esc(D.meta.grant)+")"];
+    if(D.meta.contact) fm.push(esc(t("contact"))+': <a href="mailto:'+esc(D.meta.contact)+'">'+esc(D.meta.contact)+'</a>');
+    if(D.meta.repo) fm.push(esc(t("repo"))+': <a href="'+esc(D.meta.repo)+'">'+esc(D.meta.repo)+'</a>');
+    fm.push(esc(t("license")));
+    document.getElementById("footmeta").innerHTML = fm.join("<br>");
+  }
+
+  var s="",i; for(i=0;i<12;i++){var a=i*Math.PI/6;s+='<circle cx="'+(13+8*Math.sin(a)).toFixed(2)+'" cy="'+(13-8*Math.cos(a)).toFixed(2)+'" r="1.2"/>';}
+  document.getElementById("stars").innerHTML=s;
+
+  try{ var saved=localStorage.getItem("eoscEsLang"); if(saved==="es"||saved==="en") lang=saved; else lang=(navigator.language||"es").toLowerCase().indexOf("es")===0?"es":"en"; }catch(e){}
+  var q=new URLSearchParams(location.search).get("lang"); if(q==="es"||q==="en") lang=q;
+
+  document.addEventListener("click",function(ev){
+    var b=ev.target.closest("[data-lang]");
+    if(b){ lang=b.getAttribute("data-lang"); try{localStorage.setItem("eoscEsLang",lang);}catch(e){} render(); return; }
+    var f=ev.target.closest("[data-f]");
+    if(f){ resFilter=f.getAttribute("data-f"); render(); }
+  });
+  render();
+})();
+</script>
+</body>
+</html>
